@@ -26,29 +26,5 @@ class UserRegisterSerializer(serializers.ModelSerializer):
         return user
 
 
-
-class TokenSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Token
-        fields = ['key']
-        
-class LoginSerializer(serializers.ModelSerializer):
-    username = serializers.CharField()
-    password =serializers.CharField(write_only =True)
-
-    class Meta:
-        model = User
-        #fields= ['username', 'email','password']
-        exclude = [
-            'email',
-            "last_login",
-            "is_superuser",
-            "first_name",
-            "last_name",
-            "is_staff",
-            "is_active",
-            "date_joined",
-            "groups",
-            "user_permissions"
-        ]
-    
+class EmptySerializer(serializers.Serializer):
+    pass
