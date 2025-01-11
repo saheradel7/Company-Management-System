@@ -1,31 +1,54 @@
-from django.contrib.auth.models import User
 from rest_framework import serializers
+from django.contrib.auth.models import User
 from .models import UserAccount, UserRole
+from rest_framework.authtoken.models import Token
 
-class UserAccountSerializer(serializers.ModelSerializer):
-    role = serializers.ChoiceField(choices=UserRole.choices)
 
-    class Meta:
-        model = UserAccount
-        fields = ['user', 'role']
-
-class UserSerializer(serializers.ModelSerializer):
+class UserRegisterSerializer(serializers.ModelSerializer):
     password = serializers.CharField(write_only=True)
-    role = serializers.ChoiceField(choices=UserRole.choices)
+    role = serializers.ChoiceField(choices=UserRole.choices, write_only=True)  
 
     class Meta:
         model = User
-        fields = ['username', 'email', 'password', 'role']
+        fields = ['username', 'email', 'password', 'role']  
 
     def create(self, validated_data):
-        password = validated_data.pop('password')
-        role = validated_data.pop('role')
-
-        user = User.objects.create_user(**validated_data)
-
-        user_account = UserAccount.objects.create(user=user, role=role)
+        role = validated_data.get('role')
         
-        user.set_password(password)
-        user.save()
+        user = User.objects.create_user(
+            username=validated_data['username'],
+            email=validated_data['email'],
+            password=validated_data['password']
+        )
+        
+        UserAccount.objects.create(user=user, role=role)
+        
+        return user
 
-        return user_account
+
+
+class TokenSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Token
+        fields = ['key']
+        
+class LoginSerializer(serializers.ModelSerializer):
+    username = serializers.CharField()
+    password =serializers.CharField(write_only =True)
+
+    class Meta:
+        model = User
+        #fields= ['username', 'email','password']
+        exclude = [
+            'email',
+            "last_login",
+            "is_superuser",
+            "first_name",
+            "last_name",
+            "is_staff",
+            "is_active",
+            "date_joined",
+            "groups",
+            "user_permissions"
+        ]
+    

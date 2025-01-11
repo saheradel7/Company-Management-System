@@ -1,18 +1,30 @@
-from rest_framework import status, generics
+from .serializers import UserRegisterSerializer ,LoginSerializer
+from django.contrib.auth.models import User
+from rest_framework.authtoken.models import Token
+from rest_framework.authtoken.serializers import AuthTokenSerializer
+from django.contrib.auth.hashers import check_password
 from rest_framework.response import Response
-from .serializers import UserSerializer
+from rest_framework import generics, status
 
-class RegisterUserView(generics.CreateAPIView):
-    serializer_class = UserSerializer
 
-    def create(self, request, *args, **kwargs):
-        """
-        Handle user registration
-        """
+class RegisterView(generics.CreateAPIView):
+    queryset = User.objects.all()
+    serializer_class = UserRegisterSerializer
+
+
+class LoginView(generics.GenericAPIView):
+    queryset = User.objects.all()
+    serializer_class = AuthTokenSerializer
+
+    def post(self, request, *args, **kwargs):
         serializer = self.get_serializer(data=request.data)
-        
-        if serializer.is_valid():
-            user_account = serializer.save()
-            return Response({"message": "User registered successfully", "user": serializer.data}, status=status.HTTP_201_CREATED)
-        else:
-            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        serializer.is_valid(raise_exception=True)
+
+        user = serializer.validated_data['user']
+        token, created = Token.objects.get_or_create(user=user)
+
+        return Response({
+            'username': user.username,
+            'email': user.email,
+            'token': token.key,
+        })

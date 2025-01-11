@@ -20,7 +20,7 @@ class UserAccount(models.Model):
     def _str_(self):
         return self.user
 
-@receiver(post_save, sender=UserAccount)
-def create_auth_token(sender, instance=None, created=False, **kwargs):
-    if created:
-        Token.objects.create(user=instance.user)
+# @receiver(post_save, sender=UserAccount)
+# def create_auth_token(sender, instance=None, created=False, **kwargs):
+#     if created:
+#         Token.objects.create(user=instance.user)
