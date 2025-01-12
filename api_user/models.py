@@ -17,9 +17,6 @@ class UserAccount(models.Model):
     user = models.OneToOneField(User , on_delete=models.CASCADE)
     role = models.CharField(max_length=50, choices =UserRole.choices)
 
-    def _str_(self):
-        return self.user
-
 # @receiver(post_save, sender=UserAccount)
 # def create_auth_token(sender, instance=None, created=False, **kwargs):
 #     if created:
